@@ -2,22 +2,30 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addItem, removeItem, updateQuantity } from "./CartSlice";
 
-// ── CartItem Component ────────────────────────────────────────
-function CartItem({ onContinueShopping }) {
-  const dispatch = useDispatch();
+function CartItem({ onContinueShopping, onProceedToCheckout }) {
+  const dispatch    = useDispatch();
+  const cartItems   = useSelector((state) => state.cart.items);
 
-  // Get cart items and total amount from Redux store
-  const cartItems    = useSelector((state) => state.cart.items);
-  const totalAmount  = useSelector((state) => state.cart.totalAmount);
+  // ── Total number of items in cart ──────────────────────────
+  const calculateTotalQuantity = () =>
+    cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  // ── Handlers ──────────────────────────────────────────────
+  // ── Total cost of all items ────────────────────────────────
+  const calculateTotalAmount = () =>
+    cartItems
+      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .toFixed(2);
 
-  // Increase quantity by 1
+  // ── Cost for a single item (price × quantity) ──────────────
+  const calculateTotalCost = (item) =>
+    (item.price * item.quantity).toFixed(2);
+
+  // ── Increment quantity ─────────────────────────────────────
   const handleIncrement = (item) => {
     dispatch(addItem(item));
   };
 
-  // Decrease quantity by 1 — remove if reaches 0
+  // ── Decrement quantity (remove if quantity reaches 0) ──────
   const handleDecrement = (item) => {
     if (item.quantity === 1) {
       dispatch(removeItem(item.id));
@@ -26,22 +34,27 @@ function CartItem({ onContinueShopping }) {
     }
   };
 
-  // Remove item entirely from cart
-  const handleRemove = (id) => {
-    dispatch(removeItem(id));
+  // ── Remove item completely ─────────────────────────────────
+  const handleRemove = (item) => {
+    dispatch(removeItem(item.id));
   };
 
-  // Calculate subtotal for one item
-  const calculateSubtotal = (item) =>
-    (item.price * item.quantity).toFixed(2);
+  // ── Continue Shopping ──────────────────────────────────────
+  const handleContinueShopping = (e) => {
+    e.preventDefault();
+    if (onContinueShopping) onContinueShopping(e);
+  };
 
-  // Calculate total number of items
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // ── Checkout ───────────────────────────────────────────────
+  const handleCheckoutShopping = (e) => {
+    e.preventDefault();
+    alert("Functionality to be added for future reference");
+  };
 
-  // ── Empty Cart State ───────────────────────────────────────
+  // ── Empty cart ─────────────────────────────────────────────
   if (cartItems.length === 0) {
     return (
-      <div style={styles.emptyWrap}>
+      <div style={styles.emptyWrapper}>
         <div style={styles.emptyBox}>
           <span style={styles.emptyIcon}>🪴</span>
           <h2 style={styles.emptyTitle}>Your cart is empty</h2>
@@ -50,7 +63,7 @@ function CartItem({ onContinueShopping }) {
           </p>
           <button
             style={styles.continueBtn}
-            onClick={onContinueShopping}
+            onClick={handleContinueShopping}
           >
             Continue Shopping
           </button>
@@ -59,100 +72,91 @@ function CartItem({ onContinueShopping }) {
     );
   }
 
-  // ── Cart With Items ────────────────────────────────────────
   return (
     <div style={styles.wrapper}>
 
-      {/* Page Title */}
-      <h2 style={styles.pageTitle}>🛒 Your Shopping Cart</h2>
-      <p style={styles.itemCount}>
-        {totalItems} {totalItems === 1 ? "item" : "items"} in your cart
-      </p>
+      {/* ── Page Heading ── */}
+      <h2 style={styles.pageTitle}>Shopping Cart</h2>
 
-      {/* Cart Items List */}
+      {/* ── Cart Items ── */}
       <div style={styles.itemsList}>
         {cartItems.map((item) => (
-          <div key={item.id} style={styles.cartRow}>
+          <div key={item.id} style={styles.cartItem}>
 
-            {/* Plant Image */}
+            {/* Plant image */}
             <img
               src={item.image}
               alt={item.name}
               style={styles.itemImg}
             />
 
-            {/* Plant Details */}
+            {/* Plant details */}
             <div style={styles.itemDetails}>
               <h3 style={styles.itemName}>{item.name}</h3>
-              <p style={styles.itemPrice}>
-                ${item.price.toFixed(2)} each
+              <p style={styles.itemUnitPrice}>
+                Unit Price: <strong>${item.price.toFixed(2)}</strong>
               </p>
-              <p style={styles.itemSubtotal}>
-                Subtotal: <strong>${calculateSubtotal(item)}</strong>
+
+              {/* Quantity controls */}
+              <div style={styles.qtyRow}>
+                <button
+                  style={styles.qtyBtn}
+                  onClick={() => handleDecrement(item)}
+                >
+                  -
+                </button>
+                <span style={styles.qtyValue}>{item.quantity}</span>
+                <button
+                  style={styles.qtyBtn}
+                  onClick={() => handleIncrement(item)}
+                >
+                  +
+                </button>
+              </div>
+
+              {/* Total cost for this item */}
+              <p style={styles.itemTotal}>
+                Total: <strong>${calculateTotalCost(item)}</strong>
               </p>
-            </div>
 
-            {/* Quantity Controls */}
-            <div style={styles.qtyControls}>
+              {/* Delete button */}
               <button
-                style={styles.qtyBtn}
-                onClick={() => handleDecrement(item)}
-                title="Decrease quantity"
+                style={styles.deleteBtn}
+                onClick={() => handleRemove(item)}
               >
-                −
-              </button>
-              <span style={styles.qtyNum}>{item.quantity}</span>
-              <button
-                style={styles.qtyBtn}
-                onClick={() => handleIncrement(item)}
-                title="Increase quantity"
-              >
-                +
+                Delete
               </button>
             </div>
-
-            {/* Delete Button */}
-            <button
-              style={styles.deleteBtn}
-              onClick={() => handleRemove(item.id)}
-              title="Remove from cart"
-            >
-              🗑
-            </button>
 
           </div>
         ))}
       </div>
 
-      {/* Cart Summary */}
+      {/* ── Cart Summary ── */}
       <div style={styles.summary}>
-        <div style={styles.summaryRow}>
-          <span style={styles.summaryLabel}>Items ({totalItems})</span>
-          <span>${Number(totalAmount).toFixed(2)}</span>
-        </div>
-        <div style={styles.summaryRow}>
-          <span style={styles.summaryLabel}>Shipping</span>
-          <span style={{ color: "#2d5a27", fontWeight: 500 }}>Free</span>
-        </div>
-        <div style={styles.divider} />
-        <div style={{ ...styles.summaryRow, ...styles.totalRow }}>
-          <span>Total</span>
-          <strong style={styles.totalAmount}>
-            ${Number(totalAmount).toFixed(2)}
-          </strong>
-        </div>
+        <h3 style={styles.summaryTitle}>
+          Total Items in Cart:{" "}
+          <span style={styles.summaryValue}>{calculateTotalQuantity()}</span>
+        </h3>
+        <h3 style={styles.summaryTitle}>
+          Total Amount:{" "}
+          <span style={styles.summaryValue}>${calculateTotalAmount()}</span>
+        </h3>
       </div>
 
-      {/* Action Buttons */}
+      {/* ── Action Buttons ── */}
       <div style={styles.actions}>
         <button
           style={styles.continueBtn}
-          onClick={onContinueShopping}
+          onClick={handleContinueShopping}
         >
-          ← Continue Shopping
+          Continue Shopping
         </button>
-        <button style={styles.checkoutBtn}>
-          Proceed to Checkout
+        <button
+          style={styles.checkoutBtn}
+          onClick={handleCheckoutShopping}
+        >
+          Checkout
         </button>
       </div>
 
@@ -162,13 +166,13 @@ function CartItem({ onContinueShopping }) {
 
 // ── Styles ────────────────────────────────────────────────────
 const styles = {
-  // Empty state
-  emptyWrap: {
+  emptyWrapper: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     minHeight: "60vh",
     padding: "2rem",
+    fontFamily: "'DM Sans', sans-serif",
   },
   emptyBox: {
     textAlign: "center",
@@ -186,23 +190,17 @@ const styles = {
   },
   emptyText: { color: "#777", fontSize: "0.95rem" },
 
-  // Main wrapper
   wrapper: {
-    maxWidth: "780px",
+    maxWidth: "860px",
     margin: "0 auto",
     padding: "2rem 1.5rem 4rem",
     fontFamily: "'DM Sans', sans-serif",
   },
   pageTitle: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: "2rem",
+    fontSize: "2.2rem",
     fontWeight: 700,
     color: "#1a2e1a",
-    marginBottom: "0.3rem",
-  },
-  itemCount: {
-    color: "#888",
-    fontSize: "0.9rem",
     marginBottom: "1.75rem",
   },
 
@@ -210,21 +208,21 @@ const styles = {
   itemsList: {
     display: "flex",
     flexDirection: "column",
-    gap: "1rem",
+    gap: "1.25rem",
     marginBottom: "2rem",
   },
-  cartRow: {
+  cartItem: {
     display: "flex",
-    alignItems: "center",
-    gap: "1rem",
+    gap: "1.25rem",
     background: "#ffffff",
-    borderRadius: "12px",
-    padding: "1rem",
-    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+    borderRadius: "14px",
+    padding: "1.1rem",
+    boxShadow: "0 2px 14px rgba(0,0,0,0.07)",
+    alignItems: "flex-start",
   },
   itemImg: {
-    width: "72px",
-    height: "72px",
+    width: "100px",
+    height: "100px",
     borderRadius: "10px",
     objectFit: "cover",
     background: "#e8f0e4",
@@ -234,94 +232,91 @@ const styles = {
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    gap: "0.2rem",
+    gap: "0.4rem",
   },
   itemName: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: "1.1rem",
+    fontSize: "1.15rem",
     fontWeight: 700,
     color: "#1a2e1a",
+    margin: 0,
   },
-  itemPrice:    { fontSize: "0.82rem", color: "#888" },
-  itemSubtotal: { fontSize: "0.85rem", color: "#555" },
+  itemUnitPrice: {
+    fontSize: "0.88rem",
+    color: "#666",
+    margin: 0,
+  },
 
-  // Quantity controls
-  qtyControls: {
+  // Quantity row
+  qtyRow: {
     display: "flex",
     alignItems: "center",
-    gap: "0.5rem",
-    background: "#e8f0e4",
-    borderRadius: "8px",
-    padding: "0.2rem 0.4rem",
+    gap: "0.6rem",
   },
   qtyBtn: {
+    width: "30px",
+    height: "30px",
+    borderRadius: "6px",
+    border: "1.5px solid #2d5a27",
     background: "none",
-    border: "none",
+    color: "#2d5a27",
     fontSize: "1.1rem",
     fontWeight: 700,
-    color: "#2d5a27",
     cursor: "pointer",
-    width: "28px",
-    height: "28px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: "6px",
-    transition: "background 0.15s",
+    lineHeight: 1,
   },
-  qtyNum: {
-    fontSize: "0.95rem",
+  qtyValue: {
+    fontSize: "1rem",
     fontWeight: 600,
     color: "#1a2e1a",
-    minWidth: "22px",
+    minWidth: "24px",
     textAlign: "center",
   },
 
-  // Delete button
+  itemTotal: {
+    fontSize: "0.9rem",
+    color: "#444",
+    margin: 0,
+  },
   deleteBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "1.1rem",
+    alignSelf: "flex-start",
+    background: "#fff0ee",
+    border: "1px solid #e8624a",
+    color: "#e8624a",
+    borderRadius: "6px",
+    padding: "0.3rem 0.85rem",
+    fontSize: "0.82rem",
+    fontWeight: 500,
     cursor: "pointer",
-    opacity: 0.6,
-    transition: "opacity 0.2s",
-    padding: "0.3rem",
+    marginTop: "0.2rem",
   },
 
-  // Summary box
+  // Summary
   summary: {
     background: "#ffffff",
     borderRadius: "14px",
-    padding: "1.5rem",
-    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+    padding: "1.25rem 1.5rem",
+    boxShadow: "0 2px 14px rgba(0,0,0,0.07)",
     marginBottom: "1.5rem",
     display: "flex",
     flexDirection: "column",
-    gap: "0.75rem",
+    gap: "0.6rem",
   },
-  summaryRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "0.95rem",
+  summaryTitle: {
+    fontSize: "1rem",
+    fontWeight: 500,
     color: "#444",
+    margin: 0,
   },
-  summaryLabel: { color: "#777" },
-  divider: {
-    height: "1px",
-    background: "rgba(0,0,0,0.07)",
-    margin: "0.25rem 0",
-  },
-  totalRow: {
-    fontSize: "1.05rem",
-    fontWeight: 600,
-    color: "#1a2e1a",
-  },
-  totalAmount: {
-    fontSize: "1.25rem",
+  summaryValue: {
     color: "#2d5a27",
+    fontWeight: 700,
   },
 
-  // Action buttons
+  // Buttons
   actions: {
     display: "flex",
     gap: "1rem",
@@ -338,7 +333,6 @@ const styles = {
     fontWeight: 500,
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
-    transition: "background 0.2s",
     minWidth: "160px",
   },
   checkoutBtn: {
@@ -352,7 +346,6 @@ const styles = {
     fontWeight: 500,
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
-    transition: "background 0.2s",
     minWidth: "160px",
   },
 };
