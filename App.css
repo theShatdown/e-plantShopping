@@ -1,0 +1,244 @@
+/* ===================================================
+   App.css – Paradise Nursery
+   Landing page background & global app styles
+   =================================================== */
+
+/* ===== GLOBAL RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background-color: #faf7f2;
+  color: #1a1a1a;
+}
+
+/* ===== APP WRAPPER ===== */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===================================================
+   LANDING PAGE – Background Image
+   =================================================== */
+.landing-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  /* ── Background image ── */
+  background-image: url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1600&q=85');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Dark overlay on top of background image */
+.landing-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(15, 30, 15, 0.78) 0%,
+    rgba(30, 70, 25, 0.65) 50%,
+    rgba(50, 100, 40, 0.55) 100%
+  );
+  z-index: 1;
+}
+
+/* All direct children sit above the overlay */
+.landing-page > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== LANDING CONTENT ===== */
+.landing-content {
+  max-width: 680px;
+  padding: 2rem;
+}
+
+.landing-eyebrow {
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.75rem;
+}
+
+.landing-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  font-weight: 700;
+  line-height: 0.95;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 4px 32px rgba(0, 0, 0, 0.3);
+}
+
+.landing-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.78);
+  margin-bottom: 2.5rem;
+}
+
+.landing-cta {
+  display: inline-block;
+  padding: 0.9rem 2.75rem;
+  background: #ffffff;
+  color: #1a2e1a;
+  text-decoration: none;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.landing-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2.5rem;
+  background: rgba(250, 247, 242, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(45, 90, 39, 0.12);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a2e1a;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.navbar-links a {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #6b6b6b;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.navbar-links a:hover {
+  color: #2d5a27;
+}
+
+/* ===== PRODUCTS SECTION ===== */
+.products-section {
+  padding: 5rem 2rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.products-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a2e1a;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.products-subheading {
+  text-align: center;
+  color: #6b6b6b;
+  font-size: 1rem;
+  margin-bottom: 3rem;
+}
+
+/* ===== CART ICON BUTTON ===== */
+.cart-icon-btn {
+  position: relative;
+  background: #2d5a27;
+  border: none;
+  border-radius: 50px;
+  padding: 0.55rem 1.2rem;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.cart-icon-btn:hover {
+  background: #1a2e1a;
+  transform: scale(1.04);
+}
+
+.cart-badge {
+  background: #e8624a;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .landing-page {
+    background-attachment: scroll; /* Disable parallax on mobile */
+  }
+
+  .navbar {
+    padding: 0.85rem 1.25rem;
+  }
+
+  .navbar-links {
+    gap: 1.2rem;
+  }
+
+  .landing-title {
+    font-size: clamp(2.8rem, 14vw, 5rem);
+  }
+}
